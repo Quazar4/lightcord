@@ -1,13 +1,13 @@
-import json
-import websockets
+import aiohttp
 
-async def disable_button(websocket, channel_id, message_id, button_id):
-    payload = {
-        "op": 7,
-        "d": {
-            "channel_id": channel_id,
-            "message_id": message_id,
-            "button_id": button_id
-        }
+async def disable_button(token, channel_id, message_id, button_id):
+    url = f"https://discord.com/api/v10/channels/{channel_id}/messages/{message_id}/buttons/{button_id}"
+    headers = {
+        "Authorization": f"Bot {token}",
+        "Content-Type": "application/json"
     }
-    await websocket.send(json.dumps(payload))
+    
+    async with aiohttp.ClientSession() as session:
+        async with session.patch(url, headers=headers, json={}) as response:
+            if response.status != 200:
+                raise Exception(f"Failed to disable button: {response.status}")
